@@ -18,7 +18,7 @@ class Field:
 
 class Name(Field):
     # реалізація класу
-    name: Field
+    pass
 
 
 class Phone(Field):
@@ -29,7 +29,7 @@ class Phone(Field):
     def __init__(self, value):
         super().__init__(value)
 
-    # Перевірка під self. Переробити під str?
+    # Перевірка коректності телефону
     def is_phone(self):
         pattern = r"\d{10}"
         match = re.search(pattern, str(self.phone))
@@ -76,16 +76,17 @@ class AddressBook(UserDict):
     book = UserDict()
 
     def add_record(self, record: Record):
-        self.data[record.name] = record.phones
+        self.data[str(record.name)] = record.phones
 
     def find(self, name: Name):
         # перевірку існування зробити корректно
         # self.data.get(name)
         if name in self.data:
-            return self.data[name]
+            print(type(self.data[name]), self.data[name])
+            print(type(self.data), self.data)
+            return self.data
         else:
             print(f"Контакт {name} відсутній")
-
             return
 
     def delete(self, name: Name):
@@ -116,9 +117,12 @@ def main():
 
     # Виведення всіх записів у книзі
     for name, record in book.data.items():
-        print(record)
+        print(name, record)
+
+    print(book)
 
     # Знаходження та редагування телефону для John
+    # Не знаходить
     john = book.find("John")
     john.edit_phone("1234567890", "1112223333")
 
