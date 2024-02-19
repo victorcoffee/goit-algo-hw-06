@@ -22,7 +22,6 @@ class Name(Field):
 
 
 class Phone(Field):
-    # реалізація класу
 
     # Додати перевірку
     def __init__(self, value):
