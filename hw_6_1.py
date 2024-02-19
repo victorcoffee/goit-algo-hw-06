@@ -23,7 +23,6 @@ class Name(Field):
 
 class Phone(Field):
     # реалізація класу
-    # phone: Field
 
     # Додати перевірку
     def __init__(self, value):
@@ -57,8 +56,9 @@ class Record:
 
     # перевірку існування зробити корректно
     def edit_phone(self, old_phone: Phone, new_phone: Phone):
-        if self.phones[old_phone]:
-            self.phones[old_phone] = new_phone
+        if old_phone in self.phones:
+            index = self.phones.index(old_phone)
+            self.phones[index] = new_phone
             return f"Номер {new_phone} оновлено для {self.name.value}"
 
     def find_phone(self, phone: Phone):
@@ -80,40 +80,24 @@ class AddressBook(UserDict):
         # print(record.name, record.phones)
 
     def find(self, name: Name) -> Record:
-        # перевірку існування зробити корректно
-        name = Name(name)
-        record = Record(name)  # Не використовується
-        print(record)
-        # # Варіант з get не працює, видає None
-        # print(self.data.get(name.value))
-        # print(self.data.get(name))
-        # return self.data.get(name)
-
         for key, value in self.data.items():
-            if name.value == key.value:
-                print("Запис знайдено")
-                result = self.data
+            if key.value == name:
+                # print("Запис знайдено")
+                result = self.data[key]
                 print(result)
-
-                # Повертає None, видає помилку
-                result = self.data.get(name)
-                # result = self.data[name]
-                print(result)
-
-                # видає помилку
-                # result = self.data[name]
-                # print(result)
                 return result
-        print("Запис не знайдено")
+        # print("Запис не знайдено")
         return
 
     def delete(self, name: Name):
         # перевірку існування зробити корректно
-        if self.data[name]:
-            del self.data[name]
-            print(f"Контакт {self.data[name]} видалено")
+        for key, value in self.data.items():
+            if key.value == name:
+                print(f"{self.data[key]} видалено")
+                del self.data[key]
+                break
         else:
-            return f"Контакт {self.data[name]} відсутній"
+            return f"Контакт {name} відсутній"
 
 
 def main():
@@ -127,7 +111,6 @@ def main():
 
     # Додавання запису John до адресної книги
     book.add_record(john_record)
-    # print(john_record)  # Виведення: Contact name: John, phones: 1234567890; 5555555555
 
     # Створення та додавання нового запису для Jane
     jane_record = Record("Jane")
@@ -139,19 +122,17 @@ def main():
         print(record)
 
     # Знаходження та редагування телефону для John
-    # Не знаходить
     john = book.find("John")
     print(john)
     john.edit_phone("1234567890", "1112223333")
+    print(john)  # Виведення: Contact name: John, phones: 1112223333; 5555555555
 
-    # print(john)  # Виведення: Contact name: John, phones: 1112223333; 5555555555
+    # Пошук конкретного телефону у записі John
+    found_phone = john.find_phone("5555555555")
+    print(f"{found_phone}")  # Виведення: 5555555555
 
-    # # Пошук конкретного телефону у записі John
-    # found_phone = john.find_phone("5555555555")
-    # print(f"{john.name}: {found_phone}")  # Виведення: 5555555555
-
-    # # Видалення запису Jane
-    # book.delete("Jane")
+    # Видалення запису Jane
+    book.delete("Jane")
 
     print("Програма завершена")
 
