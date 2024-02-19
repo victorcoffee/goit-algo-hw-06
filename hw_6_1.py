@@ -43,8 +43,6 @@ class Record:
         self.name = Name(name)
         self.phones = []
 
-    # реалізація класу
-
     def add_phone(self, phone: Phone):
         self.phones.append(phone)
         return f"Номер {phone} додано {self.name.value}"
@@ -64,19 +62,17 @@ class Record:
         if phone in self.phones:
             return f"{self.name}: {phone}"
         else:
-            return f"Телефон {phone} не знайдено"
+            return f"Phone {phone} not found"
 
     def __str__(self):
         return f"Contact name: {self.name}, phones: {'; '.join(p for p in self.phones)}"
 
 
 class AddressBook(UserDict):
-    # реалізація класу
     book = UserDict()
 
     def add_record(self, record: Record):
         self.data[record.name] = record
-        # print(record.name, record.phones)
 
     def find(self, name: Name) -> Record:
         for key, value in self.data.items():
@@ -89,14 +85,13 @@ class AddressBook(UserDict):
         return
 
     def delete(self, name: Name):
-        # перевірку існування зробити корректно
         for key, value in self.data.items():
             if key.value == name:
-                print(f"{self.data[key]} видалено")
+                print(f"{self.data[key]} deleted")
                 del self.data[key]
                 break
         else:
-            return f"Контакт {name} відсутній"
+            return f"Contact {name} is absent"
 
 
 def main():
@@ -124,14 +119,18 @@ def main():
     john = book.find("John")
     print(john)
     john.edit_phone("1234567890", "1112223333")
-    print(john)  # Виведення: Contact name: John, phones: 1112223333; 5555555555
+    print(john)  
 
     # Пошук конкретного телефону у записі John
     found_phone = john.find_phone("5555555555")
-    print(f"{found_phone}")  # Виведення: 5555555555
+    print(f"{found_phone}") 
 
     # Видалення запису Jane
     book.delete("Jane")
+
+    # Виведення всіх записів у книзі
+    for name, record in book.data.items():
+        print(record)
 
     print("Програма завершена")
 
