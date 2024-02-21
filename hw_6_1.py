@@ -1,11 +1,9 @@
 # Модуль 6
 
 import os, re
+from collections import UserDict
 
 os.system("cls")
-
-
-from collections import UserDict
 
 
 class Field:
@@ -22,20 +20,15 @@ class Name(Field):
 
 
 class Phone(Field):
-
-    # Додати перевірку
+    # Перевірка номера на коректність - 10 цифр
     def __init__(self, value):
-        super().__init__(value)
-
-    # Перевірка коректності телефону
-    def is_phone(self):
         pattern = r"\d{10}"
-        match = re.search(pattern, str(self.phone))
+        match = re.search(pattern, str(value))
         if match:
-            return self.phone
+            super().__init__(value)
         else:
-            print(f"Некоректний номер")
-            return
+            print(f"Invalid number, must be 10 digits")
+            raise Exception("Invalid number")
 
 
 class Record:
@@ -43,47 +36,67 @@ class Record:
         self.name = Name(name)
         self.phones = []
 
+    # Додавання телефону до контакту
     def add_phone(self, phone: Phone):
+        phone = Phone(phone)
         self.phones.append(phone)
-        return f"Номер {phone} додано {self.name.value}"
+        print(f"Number {phone} added for {self.name.value}")
 
+    # Видалення телефону до контакту
     def remove_phone(self, phone: Phone):
-        # перевірку існування зробити корректно
-        self.phones.remove(phone)
-
-    # перевірку існування зробити корректно
-    def edit_phone(self, old_phone: Phone, new_phone: Phone):
-        if old_phone in self.phones:
-            index = self.phones.index(old_phone)
-            self.phones[index] = new_phone
-            return f"Номер {new_phone} оновлено для {self.name.value}"
-
-    def find_phone(self, phone: Phone):
-        if phone in self.phones:
-            return f"{self.name}: {phone}"
+        phone = Phone(phone)
+        for index in range(len(self.phones)):
+            if phone.value == self.phones[index].value:
+                print(f"Number {phone.value} deleted for {self.name.value}")
+                del self.phones[index]
+                return
         else:
-            return f"Phone {phone} not found"
+            print(f"Phone {phone.value} not found - remove_phone")
 
+    # Редагування телефону для контакту
+    def edit_phone(self, old_phone: Phone, new_phone: Phone):
+        old_phone = Phone(old_phone)
+        new_phone = Phone(new_phone)
+        for index in range(len(self.phones)):
+            if old_phone.value == self.phones[index].value:
+                self.phones[index] = new_phone
+                print(f"Number {new_phone.value} updated for {self.name.value}")
+                return
+        else:
+            print(f"Phone {old_phone.value} not found - edit_phone")
+
+    # Пошук телефону у контакта
+    def find_phone(self, phone: Phone):
+        phone = Phone(phone)
+        for item in self.phones:
+            if phone.value == item.value:
+                print(f"Phone {phone.value} found")
+                return f"{self.name.value}: {phone.value}"
+        else:
+            print(f"Phone {phone.value} not found - find_phone")
+
+    # Формат виведення контакту
     def __str__(self):
-        return f"Contact name: {self.name}, phones: {'; '.join(p for p in self.phones)}"
+        return f"Contact name: {self.name.value}, phones: {'; '.join(p.value for p in self.phones)}"
 
 
 class AddressBook(UserDict):
     book = UserDict()
 
+    # Додавання контакту до книги
     def add_record(self, record: Record):
         self.data[record.name] = record
 
+    # Пошук контакту
     def find(self, name: Name) -> Record:
         for key, value in self.data.items():
             if key.value == name:
-                # print("Запис знайдено")
-                result = self.data[key]
-                print(result)
-                return result
-        # print("Запис не знайдено")
+                print(f"Contact {name} found")
+                return self.data[key]
+        print(f"Contact {name} not found")
         return
-
+    
+    # Видалення контакту з книги
     def delete(self, name: Name):
         for key, value in self.data.items():
             if key.value == name:
@@ -91,7 +104,7 @@ class AddressBook(UserDict):
                 del self.data[key]
                 break
         else:
-            return f"Contact {name} is absent"
+            print("Contact {name} is absent")
 
 
 def main():
@@ -117,13 +130,20 @@ def main():
 
     # Знаходження та редагування телефону для John
     john = book.find("John")
-    print(john)
     john.edit_phone("1234567890", "1112223333")
-    print(john)  
+    print("john:", john)
 
     # Пошук конкретного телефону у записі John
     found_phone = john.find_phone("5555555555")
-    print(f"{found_phone}") 
+    print(f"Found phone: {found_phone}")
+
+    # Видалення телефону
+    john.remove_phone("5555555555")
+    print(john)
+
+    # Спроба видалення неіснуючого телефону
+    john.remove_phone("5555555555")
+    print(john)
 
     # Видалення запису Jane
     book.delete("Jane")
@@ -132,7 +152,7 @@ def main():
     for name, record in book.data.items():
         print(record)
 
-    print("Програма завершена")
+    print("The program is completed")
 
 
 if __name__ == "__main__":
